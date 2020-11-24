@@ -119,10 +119,10 @@ const App = () => {
         </Botao>
       </Menu>
       {user.message == false &&
-        <Message>Seja bem vindo!</Message>
+        <Message>Seja bem vindo(a)!</Message>
       }
       { user.message == "Not Found" &&
-        <Message>Usuário não econtrado!</Message>
+        <Message>Usuário não encontrado!</Message>
       }
       { user.login && 
         <React.Fragment>
