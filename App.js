@@ -1,6 +1,7 @@
-import React, {useState, Fragment} from 'react';
+import React, {useState, Fragment, useEffect} from 'react';
 import {Text, View, SafeAreaView} from 'react-native';
 import styled from 'styled-components';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Pagina = styled.View`
   flex: 1;
@@ -58,7 +59,7 @@ const Imagem = styled.Image`
 
 const Avatar = styled.SafeAreaView`
   width: 250px;
-  height: 300px;
+  height: 250px;
   margin-bottom: 30px;
 `;
 
@@ -103,8 +104,21 @@ const App = () => {
   const buscarUser = async () => {
     const req = await fetch(`https://api.github.com/users/${nome}`,);
     const resultado = await req.json(); 
+    if(resultado.message != "Not Found"){
+      const jsonValue = JSON.stringify(resultado)
+      await AsyncStorage.setItem('@user', jsonValue)
+    }
     alteraUsername(resultado);
   };
+
+  const getUser = async () => {
+    const jsonResult = await AsyncStorage.getItem('@user')
+    return jsonResult != null ? alteraUsername(JSON.parse(jsonResult)) : null;
+  };
+
+  useEffect(() => {
+    getUser();
+  }, []);
 
 
   return (
@@ -118,9 +132,6 @@ const App = () => {
             <Iconebuscar source={require('./src/imagens/icon-search.png')}/>
         </Botao>
       </Menu>
-      {user.message == false &&
-        <Message>Seja bem vindo(a)!</Message>
-      }
       { user.message == "Not Found" &&
         <Message>Usuário não encontrado!</Message>
       }
@@ -132,10 +143,12 @@ const App = () => {
           <Details>
             <Item>Nome</Item>
             <ItemB>{user.name}</ItemB>
-            <Item>Username</Item>
+            <Item>Nome de Usuário</Item>
             <ItemB>{user.login}</ItemB>
             <Item>Seguidores</Item>
             <ItemB>{user.followers}</ItemB>
+            <Item>Repositórios</Item>
+            <ItemB>{user.public_repos}</ItemB>
           </Details>
         </React.Fragment>
       }
