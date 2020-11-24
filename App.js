@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, Fragment} from 'react';
 import {Text, View, SafeAreaView} from 'react-native';
 import styled from 'styled-components';
 
@@ -47,17 +47,17 @@ const Iconebuscar = styled.Image`
 `;
 
 const Imagem = styled.Image`
-  margin-left: 100px;
+  margin-left: 80px;
   margin-right: 100px;
   margin-bottom: 200px;
   margin-top: 20px;
   width: 100%;
   height: 100%;
-  border-radius: 10px;
+  border-radius: 5px;
 `;
 
 const Avatar = styled.SafeAreaView`
-  width: 200px;
+  width: 250px;
   height: 300px;
   margin-bottom: 30px;
 `;
@@ -83,16 +83,29 @@ const Item = styled.Text`
 `;
 
 const ItemB = styled.Text`
-  font-size: 15px;
+  font-size: 18px;
   margin-left: 20px;
   margin-right: 20px;
   margin-top: 2px;
   text-align: center;
 `;
 
+const Message = styled.Text`
+  font-size: 30px;
+  text-align: center;
+  margin-top: 200px;
+`;
+
 const App = () => {
   const [nome, alteraNome] = useState('');
-  const [filme, alteraFilme] = useState({});
+  const [user, alteraUsername] = useState({message: false});
+
+  const buscarUser = async () => {
+    const req = await fetch(`https://api.github.com/users/${nome}`,);
+    const resultado = await req.json(); 
+    alteraUsername(resultado);
+  };
+
 
   return (
     <Pagina>
@@ -100,22 +113,32 @@ const App = () => {
         <Logo source={require('./src/imagens/logo.png')}/>
       </Cabecalho>
       <Menu>
-        <Busca placeholder="Busca" placeholderTextColor="#24292e" onChangeText={(username) => alteraNome(username)}/>
-        <Botao activeOpacity={0.3}>
+        <Busca placeholder="Busca" value={nome} placeholderTextColor="#24292e" onChangeText={(name) => alteraNome(name)} />
+        <Botao activeOpacity={0.3} onPress={buscarUser}>
             <Iconebuscar source={require('./src/imagens/icon-search.png')}/>
         </Botao>
       </Menu>
-      <Avatar>
-        <Imagem/>
-      </Avatar>
-      <Details>
-        <Item>Nome</Item>
-        <ItemB>Exemplo</ItemB>
-        <Item>Username</Item>
-        <ItemB></ItemB>
-        <Item>Seguidores</Item>
-        <ItemB></ItemB>
-      </Details>
+      {user.message == false &&
+        <Message>Seja bem vindo!</Message>
+      }
+      { user.message == "Not Found" &&
+        <Message>Usuário não econtrado!</Message>
+      }
+      { user.login && 
+        <React.Fragment>
+          <Avatar>
+            <Imagem source={{uri: user.avatar_url}}/>
+          </Avatar>
+          <Details>
+            <Item>Nome</Item>
+            <ItemB>{user.name}</ItemB>
+            <Item>Username</Item>
+            <ItemB>{user.login}</ItemB>
+            <Item>Seguidores</Item>
+            <ItemB>{user.followers}</ItemB>
+          </Details>
+        </React.Fragment>
+      }
     </Pagina>
   )
 }
